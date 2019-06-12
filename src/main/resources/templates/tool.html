@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico"/>
+
+    <title>JSON Data Parser</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../static/css/bootstrap.css" rel="stylesheet" th:href="@{/css/bootstrap.css}"/>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="/">JDP</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-collapse collapse w-100" id="navbarNavAltMarkup">
+            <div class="navbar-nav mr-auto">
+                <a class="nav-item nav-link" href="/">About</a>
+                <a class="nav-item nav-link active" href="/tool">JSON Tool <span class="sr-only">(current)</span></a>
+            </div>
+            <div class="navbar-nav ml-auto">
+                <a class="nav-item nav-link" href="/signout">Sign out</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div class="row mt-3">
+             <div class="col-6">
+                 <form th:action="@{/tool}" th:object="${inputJson}" method="post">
+                     <div class="form-group mb-3">
+                         <h3 for="basic-input">Input JSON</h3>
+                         <textarea class="form-control" id="basic-input" th:field="*{input}" rows="6"></textarea>
+                     </div>
+                     <div class="input-group mb-3">
+                         <div class="input-group-prepend">
+                             <span class="input-group-text" id="group-text-url">URL</span>
+                         </div>
+                         <input type="text" class="form-control" id="basic-url" th:field="*{url}" placeholder="https://demo.omegasys.eu/ps/ips/getWinnerList" aria-label="URL" aria-describedby="group-text-url">
+                     </div>
+                     <div class="input-group mb-3">
+                         <div class="input-group-prepend">
+                             <span class="input-group-text" id="group-text-filename">Filename</span>
+                         </div>
+                         <input type="text" class="form-control" id="basic-filename" th:field="*{filename}" placeholder="sample.txt" aria-label="Filename" aria-describedby="group-text-filename">
+                     </div>
+                     <div>
+                         <button type="submit" class="btn btn-lg btn-secondary">Get Metadata</button>
+                     </div>
+                 </form>
+             </div>
+             <div class="col-3">
+                 <div class="form-group mb-3">
+                     <h3 for="basic-metadata">Metadata</h3>
+                     <textarea class="form-control" id="basic-metadata" rows="10" th:text="${metadata}"></textarea>
+                 </div>
+             </div>
+            <div class="col-3">
+                <div class="form-group mb-3">
+                    <h3 for="basic-query">Custom Filter</h3>
+                    <textarea class="form-control" id="basic-query" rows="10"></textarea>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-lg btn-secondary">Query</button>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col">
+                <div class="form-group mb-3">
+                    <h3 for="basic-result">Query Result</h3>
+                    <textarea class="form-control" id="basic-result" rows="10"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- Bootstrap core JavaScript
+================================================== -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="../static/js/bootstrap.js" th:href="@{/js/bootstrap.js}"></script>
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+</body>
+</html>

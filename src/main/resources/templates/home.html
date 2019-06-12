@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico"/>
+
+    <title>About</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../static/css/bootstrap.css" rel="stylesheet" th:href="@{/css/bootstrap.css}"/>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="/">JDP</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-collapse collapse w-100" id="navbarNavAltMarkup">
+            <div class="navbar-nav mr-auto">
+                <a class="nav-item nav-link active" href="/">About <span class="sr-only">(current)</span></a>
+                <a class="nav-item nav-link" href="/tool">JSON Tool</a>
+            </div>
+            <div class="navbar-nav ml-auto">
+                <a class="nav-item nav-link" href="/signout">Sign out</a>
+            </div>
+        </div>
+    </nav>
+    <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+            <h3 th:text="'Welcome to the JSON Parsing and Filtering tool'"></h3>
+            <p th:text="'Created by ' + ${fullname} + ' (' + ${#dates.format(datetime, 'MMM yyyy')} + ')'"></p>
+            <p> This tool takes a JSON input and generates information about its structure.
+                Any of the generated keys may then be deselected to filter the output.</p>
+            <p> The following technologies are used:</p>
+            <ul>
+                <li>Spring</li>
+                <li>Thymeleaf</li>
+                <li>Bootstrap</li>
+                <li>Heroku</li>
+            </ul>
+            <p>
+                <a class="btn btn-lg btn-dark" href="/tool" role="button">Use Tool &raquo;</a>
+            </p>
+        </div>
+    </div>
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="../static/js/bootstrap.js" th:href="@{/js/bootstrap.js}"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+</body>
+</html>
