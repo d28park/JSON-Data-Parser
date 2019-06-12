@@ -59,6 +59,8 @@ public class MetadataGenerator {
     public static String fastMetadataGeneration(InputStream is) throws IOException {
         StringBuffer sb = new StringBuffer();
         String metadata;
+        int objectNest = 0;
+        boolean[] arrayStart = new boolean[400];
 
         JsonFactory jsonFactory = new JsonFactory();
         JsonParser parser = jsonFactory.createParser(is);
@@ -69,6 +71,7 @@ public class MetadataGenerator {
             }
             switch (jt) {
                 case START_OBJECT:
+                    objectNest++;
                     sb.append("{");
                     parser.nextToken();
                     sb.append("\"" + parser.getText() + "\":");
@@ -77,23 +80,42 @@ public class MetadataGenerator {
                     sb.append("\"" + parser.getText() + "\":");
                     break;
                 case START_ARRAY:
+                    arrayStart[objectNest] = true;
                     sb.append("[");
                     jt = parser.nextToken();
                     if (jt == JsonToken.START_OBJECT) {
+                        objectNest++;
                         sb.append("{");
                     } else if (jt == JsonToken.END_ARRAY) {
                         sb.append("]");
+                        arrayStart[objectNest] = false;
                     } else {
                         sb.append(jt);
                         while (parser.nextToken() != JsonToken.END_ARRAY) {
-                            sb.append("]");
+                            // Do nothing
                         }
+                        sb.append("]");
+                        arrayStart[objectNest] = false;
+                    }
+                    break;
+                case END_OBJECT:
+                    objectNest--;
+                    if (arrayStart[objectNest]) {
+                        while (parser.nextToken() != JsonToken.END_ARRAY) {
+                            // Do nothing
+                        }
+                        arrayStart[objectNest] = false;
+                        sb.replace(sb.length() - 2, sb.length(), "}]");
+                        if (objectNest > 0) {
+                            sb.append(", ");
+                        }
+                    } else if (objectNest == 0) {
+                        sb.replace(sb.length() - 2, sb.length(), "}");
                     }
                     break;
                 default:
-                    sb.append(jt + "}");
+                    sb.append(jt + ", ");
                     break;
-                    // Do nothing or error
             }
         }
 
