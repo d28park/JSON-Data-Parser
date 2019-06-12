@@ -1,1 +1,1 @@
-web: java -jar target/JSONDataParser-0.0.1-SNAPSHOT.jar
+web: java -Dserver.port=$PORT -jar target/JSONDataParser-0.0.1-SNAPSHOT.jar
