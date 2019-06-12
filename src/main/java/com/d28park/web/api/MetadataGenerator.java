@@ -1,4 +1,4 @@
-package com.d28park.web.JSONDataParser;
+package com.d28park.web.api;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
@@ -53,8 +53,52 @@ public class MetadataGenerator {
         }
 
         tokens = sb.toString();
-
         return tokens;
+    }
+
+    public static String fastMetadataGeneration(InputStream is) throws IOException {
+        StringBuffer sb = new StringBuffer();
+        String metadata;
+
+        JsonFactory jsonFactory = new JsonFactory();
+        JsonParser parser = jsonFactory.createParser(is);
+        while (!parser.isClosed()) {
+            JsonToken jt = parser.nextToken();
+            if (jt == null) {
+                break;
+            }
+            switch (jt) {
+                case START_OBJECT:
+                    sb.append("{");
+                    parser.nextToken();
+                    sb.append("\"" + parser.getText() + "\":");
+                    break;
+                case FIELD_NAME:
+                    sb.append("\"" + parser.getText() + "\":");
+                    break;
+                case START_ARRAY:
+                    sb.append("[");
+                    jt = parser.nextToken();
+                    if (jt == JsonToken.START_OBJECT) {
+                        sb.append("{");
+                    } else if (jt == JsonToken.END_ARRAY) {
+                        sb.append("]");
+                    } else {
+                        sb.append(jt);
+                        while (parser.nextToken() != JsonToken.END_ARRAY) {
+                            sb.append("]");
+                        }
+                    }
+                    break;
+                default:
+                    sb.append(jt + "}");
+                    break;
+                    // Do nothing or error
+            }
+        }
+
+        metadata = sb.toString();
+        return metadata;
     }
 
 /*    public void streamTreeTest() throws IOException {

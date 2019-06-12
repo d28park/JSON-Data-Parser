@@ -1,5 +1,7 @@
 package com.d28park.web.JSONDataParser;
 
+import com.d28park.web.api.MetadataGenerator;
+
 import java.io.*;
 import java.net.URL;
 
@@ -54,7 +56,8 @@ public class InputJSON implements Serializable {
         if (this.url != "") {
             URL url = new URL(this.url);
             try (InputStream is = url.openStream()) {
-                metadata = MetadataGenerator.getJsonTokens(is);
+                // metadata = MetadataGenerator.getJsonTokens(is);
+                metadata = MetadataGenerator.fastMetadataGeneration(is);
             }
         } else if (this.filename != "") {
             File f = new File("src/main/resources/" + this.filename);

@@ -1,8 +1,8 @@
-package com.d28park.web.JSONDataParser.Controller;
+package com.d28park.web.api.Controller;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.d28park.web.JSONDataParser.MetadataGenerator;
+import com.d28park.web.api.MetadataGenerator;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
