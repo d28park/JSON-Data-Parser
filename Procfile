@@ -1,1 +1,1 @@
-web: java -cp target/classes:target/dependency/* com.d28park.web.JSONDataParser.JsonDataParserApplication
+web: java -jar target/JSONDataParser-0.0.1-SNAPSHOT.jar
