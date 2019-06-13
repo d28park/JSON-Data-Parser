@@ -35,6 +35,7 @@ public class JsonDataParserController {
     public String toolPage(Model model) {
         model.addAttribute("inputJson", new InputJSON());
         model.addAttribute("metadata", "");
+        model.addAttribute("elapsedTime", "");
         model.addAttribute("mode", appMode);
 
         return "tool";
@@ -42,14 +43,16 @@ public class JsonDataParserController {
 
     @PostMapping("/tool")
     public ModelAndView getInputJson(@ModelAttribute(value="inputJson") InputJSON inputJson, BindingResult bindingResult) throws IOException {
-        String metadata = inputJson.generateMetadata();
+        String[] metadata = inputJson.generateMetadata();
+        inputJson.generateMap();
 
         ModelAndView mav = new ModelAndView();
         if (bindingResult.hasErrors()) {
             mav.addObject("inputJson", inputJson);
             mav.addObject("mode", appMode);
         }
-        mav.addObject("metadata", metadata);
+        mav.addObject("metadata", metadata[0]);
+        mav.addObject("elapsedTime", metadata[1]);
 
         return mav;
     }

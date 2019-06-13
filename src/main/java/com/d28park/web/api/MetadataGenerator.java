@@ -1,11 +1,17 @@
 package com.d28park.web.api;
 
+import com.d28park.web.JSONDataParser.SearchLinkedList;
+import com.d28park.web.JSONDataParser.SearchNode;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
 
 // Will be marshaled to JSON with Jackson library
 // Watch out for same keys, mixed types, mixture of objects and primitives
@@ -22,45 +28,18 @@ public class MetadataGenerator {
     public long getId() {
         return id;
     }
-
     public String getContent() {
         return content;
     }
 
-/*  START_OBJECT
-    END_OBJECT
-    START_ARRAY
-    END_ARRAY
-    FIELD_NAME
-    VALUE_EMBEDDED_OBJECT
-    VALUE_FALSE
-    VALUE_TRUE
-    VALUE_NULL
-    VALUE_STRING
-    VALUE_NUMBER_INT
-    VALUE_NUMBER_FLOAT*/
 
-    public static String getJsonTokens(InputStream is) throws IOException {
-        StringBuffer sb = new StringBuffer();
-        String tokens;
-
-        JsonFactory jsonFactory = new JsonFactory();
-        JsonParser parser = jsonFactory.createParser(is);
-        while (!parser.isClosed()) {
-            JsonToken jt = parser.nextToken();
-            sb.append("/");
-            sb.append(jt);
-        }
-
-        tokens = sb.toString();
-        return tokens;
-    }
-
-    public static String fastMetadataGeneration(InputStream is) throws IOException {
+    public static String[] fastMetadataGeneration(InputStream is) throws IOException {
         StringBuffer sb = new StringBuffer();
         String metadata;
+        String[] metadata_time = new String[2];
         int objectNest = 0;
         boolean[] arrayStart = new boolean[400];
+        Instant start = Instant.now();
 
         JsonFactory jsonFactory = new JsonFactory();
         JsonParser parser = jsonFactory.createParser(is);
@@ -94,15 +73,21 @@ public class MetadataGenerator {
                         while (parser.nextToken() != JsonToken.END_ARRAY) {
                             // Do nothing
                         }
-                        sb.append("]");
+                        sb.append("], ");
                         arrayStart[objectNest] = false;
                     }
                     break;
                 case END_OBJECT:
                     objectNest--;
                     if (arrayStart[objectNest]) {
-                        while (parser.nextToken() != JsonToken.END_ARRAY) {
-                            // Do nothing
+                        int returnLevel = objectNest;
+                        while (!(jt == JsonToken.END_ARRAY && objectNest == returnLevel)) {
+                            jt = parser.nextToken();
+                            if (jt == JsonToken.START_OBJECT) {
+                                objectNest++;
+                            } else if (jt == JsonToken.END_OBJECT) {
+                                objectNest--;
+                            }
                         }
                         arrayStart[objectNest] = false;
                         sb.replace(sb.length() - 2, sb.length(), "}]");
@@ -120,26 +105,90 @@ public class MetadataGenerator {
         }
 
         metadata = sb.toString();
-        return metadata;
+        Instant finish = Instant.now();
+        long timeElapsed = Duration.between(start, finish).toMillis();
+        metadata_time[0] = metadata;
+        metadata_time[1] = "Generated in: " + timeElapsed + "ms";
+
+        return metadata_time;
     }
 
-/*    public void streamTreeTest() throws IOException {
-        // URL Input
-        // URL url = new URL("https://demo.omegasys.eu/ps/ips/getWinnerList?domain=demo.omegasys.eu&period=10&size=15");
-        //InputStream is = url.openStream();
+    public static SearchNode filterJson(String returnChain) {
+        String[] returnParent = returnChain.split("->");
+        SearchLinkedList searchList = new SearchLinkedList();
 
-        // File Input
-        File initialFile = new File("src/main/resources/sample.txt");
-        InputStream is = new FileInputStream(initialFile);
+        for (String s : returnParent) {
+            searchList.addNode(s);
+        }
+
+        return searchList.getHead();
+    }
+
+    public static void streamTreeTest(InputStream is) throws IOException {
+        Instant start = Instant.now();
+
+        // Wrapper to handle flat files
+        List<InputStream> streams = Arrays.asList(new ByteArrayInputStream("{\"superwrapper\": ".getBytes()), is, new ByteArrayInputStream("}".getBytes()));
+        InputStream wrappedIs = new SequenceInputStream(Collections.enumeration(streams));
 
         JsonFactory factory = new JsonFactory();
         ObjectMapper mapper = new ObjectMapper(factory);
-        JsonNode rootNode = mapper.readTree(is);
+        JsonNode rootNode = mapper.readTree(wrappedIs);
+        String testString = "tests->friends->id";
 
-        Iterator<Map.Entry<String, JsonNode>> fieldsIterator = rootNode.fields();
+        searchTree(rootNode, filterJson(testString));
+
+        Instant finish = Instant.now();
+        long timeElapsed = Duration.between(start, finish).toMillis();
+
+        System.out.println("Filtered in: " + timeElapsed + "ms");
+    }
+
+/*    public static void recurseTree(JsonNode node) {
+        Iterator<Map.Entry<String, JsonNode>> fieldsIterator = node.fields();
         while (fieldsIterator.hasNext()) {
             Map.Entry<String, JsonNode> field = fieldsIterator.next();
-            System.out.println("Key: " + field.getKey() + "\tValue: " + field.getValue());
+            // System.out.println("Key: " + field.getKey());
+            String s = field.getKey();
+            JsonNode jn = field.getValue();
+
+            if (jn.isArray()) {
+                for (JsonNode n : jn) {
+                    recurseTree(n);
+                }
+            } else if (jn.isObject()) {
+                recurseTree(jn);
+            } else {
+                // System.out.println("Value: " + jn);
+            }
         }
     }*/
+
+    public static void searchTree(JsonNode node, SearchNode sn) {
+        List<JsonNode> jnList = node.findValues(sn.getSearchKey());
+        SearchNode nextSn = sn.getNext();
+        if (!jnList.isEmpty()) {
+            Iterator<JsonNode> listIterator = jnList.listIterator();
+            if (nextSn == null) {
+                while (listIterator.hasNext()) {
+                    JsonNode jn = listIterator.next();
+                    if (jn.intValue() != 1) {
+                        listIterator.remove();
+                    }
+                }
+                System.out.println(jnList.size());
+                return;
+            }
+            while (listIterator.hasNext()) {
+                JsonNode jn = listIterator.next();
+                if (jn.isArray()) {
+                    for (JsonNode njn : jn) {
+                        searchTree(njn, nextSn);
+                    }
+                } else if (jn.isObject()) {
+                    searchTree(jn, nextSn);
+                }
+            }
+        }
+    }
 }

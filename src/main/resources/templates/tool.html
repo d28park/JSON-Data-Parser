@@ -13,6 +13,12 @@
 
     <!-- Bootstrap core CSS -->
     <link href="../static/css/bootstrap.css" rel="stylesheet" th:href="@{/css/bootstrap.css}"/>
+    <!-- Enable tooltips -->
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -36,7 +42,7 @@
                  <form th:action="@{/tool}" th:object="${inputJson}" method="post">
                      <div class="form-group mb-3">
                          <h3 for="basic-input">Input JSON</h3>
-                         <textarea class="form-control" id="basic-input" th:field="*{input}" rows="6"></textarea>
+                         <textarea class="form-control" id="basic-input" name="input" th:field="*{input}" maxlength="10000" rows="6" placeholder="10,000 characters maximum"></textarea>
                      </div>
                      <div class="input-group mb-3">
                          <div class="input-group-prepend">
@@ -50,8 +56,14 @@
                          </div>
                          <input type="text" class="form-control" id="basic-filename" th:field="*{filename}" placeholder="sample.txt" aria-label="Filename" aria-describedby="group-text-filename">
                      </div>
-                     <div>
-                         <button type="submit" class="btn btn-lg btn-secondary">Get Metadata</button>
+                     <div class="row">
+                         <div class="col">
+                            <button type="submit" class="btn btn-lg btn-secondary">Get Metadata</button>
+                         </div>
+                         <div class="col">
+                             <input type="checkbox" class="form-check-input" id="basic-checkbox" th:field="*{fastMode}" data-toggle="tooltip" data-placement="top" title="Fast Mode only reads the first element for all arrays. It assumes every member of the collection has the same structure.">
+                             <label class="form-check-label" for="basic-checkbox">Fast Mode</label>
+                         </div>
                      </div>
                  </form>
              </div>
@@ -60,6 +72,7 @@
                      <h3 for="basic-metadata">Metadata</h3>
                      <textarea class="form-control" id="basic-metadata" rows="10" th:text="${metadata}"></textarea>
                  </div>
+                 <p th:text="${elapsedTime}"></p>
              </div>
             <div class="col-3">
                 <div class="form-group mb-3">
