@@ -119,7 +119,13 @@ public class MetadataGenerator {
             }
         }
 
-        return getPrettyPrintAndElapsedTime(sb.toString(), start);
+        //return getPrettyPrintAndElapsedTime(sb.toString(), start);
+        String[] result_timeElapsed = new String[2];
+        Instant finish = Instant.now();
+        long timeElapsed = Duration.between(start, finish).toMillis();
+        result_timeElapsed[0] = sb.toString();
+        result_timeElapsed[1] = "Generated in: " + timeElapsed + "ms";
+        return result_timeElapsed;
     }
 
     public static String[] generateMetadata(InputStream is) throws IOException {
@@ -412,3 +418,11 @@ public class MetadataGenerator {
         }
     }
 }
+
+/*
+
+tests->friends->id==1///tests->friends->id
+tests->friends->id==1&&tests->friends->id->subId>=4///tests->friends
+
+ */
+
