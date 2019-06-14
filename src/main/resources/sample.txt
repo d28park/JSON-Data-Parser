@@ -74,5 +74,6 @@
       }
     ],
     "greeting": "Hello, Carroll Myers! You have 9 unread messages.",
+    "booly": true,
     "favoriteFruit": "strawberry"
 }]}

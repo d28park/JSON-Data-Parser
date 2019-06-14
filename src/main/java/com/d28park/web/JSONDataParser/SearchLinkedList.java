@@ -18,9 +18,9 @@ public class SearchLinkedList {
         return this.head;
     }
 
-    public void addNode(String searchKey) {
+    public void addNode(String searchKey, String returnKey, String value, String operation, char UorI) {
         SearchNode current = head;
-        SearchNode temp = new SearchNode(searchKey);
+        SearchNode temp = new SearchNode(searchKey, returnKey, value, operation, UorI);
 
         if (current == null) {
             this.head = temp;
@@ -44,6 +44,6 @@ public class SearchLinkedList {
             current = current.getNext();
         }
 
-        return current.getSearchKey();
+        return current.getValue();
     }
 }
